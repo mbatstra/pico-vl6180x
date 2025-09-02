@@ -439,7 +439,7 @@ uint16_t Adafruit_VL6180X::read16(uint16_t address) {
   buffer[0] = uint8_t(address >> 8);
   buffer[1] = uint8_t(address & 0xFF);
   err |= i2c_write_blocking(_i2c, _i2caddr, buffer, sizeof(buffer), false) == PICO_ERROR_GENERIC;
-  err |= i2c_read_blocking(_i2c, _i2caddr, &ret, sizeof(ret), false) == PICO_ERROR_GENERIC;
+  err |= i2c_read_blocking(_i2c, _i2caddr, ret, sizeof(ret), false) == PICO_ERROR_GENERIC;
   if (err) {
     /* TODO: fix asserts */
   }
