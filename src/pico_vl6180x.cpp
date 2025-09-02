@@ -27,16 +27,12 @@
  */
 
 #include "Adafruit_VL6180X.h"
-#include "Arduino.h"
+#include "hardware/i2c.h"
+#include <cstdint>
 
 // Define some additional registers mentioned in application notes and we use
 ///! period between each measurement when in continuous mode
 #define SYSRANGE__INTERMEASUREMENT_PERIOD 0x001b // P19 application notes
-
-Adafruit_VL6180X::~Adafruit_VL6180X() {
-  if (i2c_dev)
-    delete i2c_dev;
-}
 
 /**************************************************************************/
 /*!
@@ -55,15 +51,9 @@ Adafruit_VL6180X::Adafruit_VL6180X(uint8_t i2caddr) : _i2caddr(i2caddr) {}
     @returns True if chip found and initialized, False otherwise
 */
 /**************************************************************************/
-boolean Adafruit_VL6180X::begin(TwoWire *theWire) {
+boolean Adafruit_VL6180X::begin(i2c_inst_t* bus) {
   // only needed to support setAddress()
-  _i2c = theWire;
-
-  if (i2c_dev)
-    delete i2c_dev;
-  i2c_dev = new Adafruit_I2CDevice(_i2caddr, _i2c);
-  if (!i2c_dev->begin())
-    return false;
+  _i2c = bus;
 
   // check for expected model id
   if (read8(VL6180X_REG_IDENTIFICATION_MODEL_ID) != 0xB4) {
@@ -87,17 +77,11 @@ boolean Adafruit_VL6180X::begin(TwoWire *theWire) {
     @returns True if write succeeded.
 */
 /**************************************************************************/
-boolean Adafruit_VL6180X::setAddress(uint8_t newAddr) {
+void Adafruit_VL6180X::setAddress(uint8_t newAddr) {
   // BUGBUG - not sure if we detect errors or not...
   // The register is mentioned in app notes.
   write8(VL6180X_REG_SLAVE_DEVICE_ADDRESS, newAddr & 0x7F);
   _i2caddr = newAddr;
-
-  if (i2c_dev)
-    delete i2c_dev;
-  i2c_dev = new Adafruit_I2CDevice(_i2caddr, _i2c);
-
-  return i2c_dev->begin();
 }
 
 /**************************************************************************/
@@ -435,21 +419,31 @@ void Adafruit_VL6180X::getID(uint8_t *id_ptr) {
 // Read 1 byte from the VL6180X at 'address'
 uint8_t Adafruit_VL6180X::read8(uint16_t address) {
   uint8_t buffer[2];
+  uint8_t ret;
+  bool err = false;
   buffer[0] = uint8_t(address >> 8);
   buffer[1] = uint8_t(address & 0xFF);
-  i2c_dev->write(buffer, 2);
-  i2c_dev->read(buffer, 1);
-  return buffer[0];
+  err |= i2c_write_blocking(_i2c, _i2caddr, buffer, sizeof(buffer), false) == PICO_ERROR_GENERIC;
+  err |= i2c_read_blocking(_i2c, _i2caddr, &ret, sizeof(ret), false) == PICO_ERROR_GENERIC;
+  if (err) {
+    /* TODO: fix asserts */
+  }
+  return ret;
 }
 
 // Read 2 byte from the VL6180X at 'address'
 uint16_t Adafruit_VL6180X::read16(uint16_t address) {
   uint8_t buffer[2];
+  uint8_t ret[2];
+  bool err = false;
   buffer[0] = uint8_t(address >> 8);
   buffer[1] = uint8_t(address & 0xFF);
-  i2c_dev->write(buffer, 2);
-  i2c_dev->read(buffer, 2);
-  return uint16_t(buffer[0]) << 8 | uint16_t(buffer[1]);
+  err |= i2c_write_blocking(_i2c, _i2caddr, buffer, sizeof(buffer), false) == PICO_ERROR_GENERIC;
+  err |= i2c_read_blocking(_i2c, _i2caddr, &ret, sizeof(ret), false) == PICO_ERROR_GENERIC;
+  if (err) {
+    /* TODO: fix asserts */
+  }
+  return ((uint16_t) ret[0]) << 8 | (uint16_t) ret[1];
 }
 
 // write 1 byte
@@ -458,7 +452,7 @@ void Adafruit_VL6180X::write8(uint16_t address, uint8_t data) {
   buffer[0] = uint8_t(address >> 8);
   buffer[1] = uint8_t(address & 0xFF);
   buffer[2] = data;
-  i2c_dev->write(buffer, 3);
+  (void) i2c_write_blocking(_i2c, _i2caddr, buffer, sizeof(buffer), false);
 }
 
 // write 2 bytes
@@ -468,5 +462,5 @@ void Adafruit_VL6180X::write16(uint16_t address, uint16_t data) {
   buffer[1] = uint8_t(address & 0xFF);
   buffer[2] = uint8_t(data >> 8);
   buffer[3] = uint8_t(data & 0xFF);
-  i2c_dev->write(buffer, 4);
+  (void) i2c_write_blocking(_i2c, _i2caddr, buffer, sizeof(buffer), false);
 }
