@@ -21,7 +21,6 @@
 #ifndef _ADAFRUIT_VL6180X_H
 #define _ADAFRUIT_VL6180X_H
 
-#include "Arduino.h"
 #include <hardware/i2c.h>
 
 #define VL6180X_DEFAULT_I2C_ADDR 0x29 ///< The fixed I2C addres
@@ -83,7 +82,7 @@ class Adafruit_VL6180X {
 public:
   Adafruit_VL6180X(uint8_t i2caddr = VL6180X_DEFAULT_I2C_ADDR);
   ~Adafruit_VL6180X();
-  boolean begin(TwoWire *theWire = &Wire);
+  boolean begin(i2c_inst_t* i2c);
   void    setAddress(uint8_t newAddr);
   uint8_t getAddress(void);
 

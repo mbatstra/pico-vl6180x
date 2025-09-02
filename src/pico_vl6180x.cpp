@@ -27,7 +27,7 @@
  */
 
 #include "Adafruit_VL6180X.h"
-#include "hardware/i2c.h"
+#include <hardware/i2c.h>
 #include <cstdint>
 
 // Define some additional registers mentioned in application notes and we use
