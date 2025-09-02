@@ -26,7 +26,7 @@
  *
  */
 
-#include "Adafruit_VL6180X.h"
+#include "pico_vl6180x/pico_vl6180x.h"
 #include <hardware/i2c.h>
 #include <cstdint>
 
