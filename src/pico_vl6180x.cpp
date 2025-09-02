@@ -51,7 +51,7 @@ Adafruit_VL6180X::Adafruit_VL6180X(uint8_t i2caddr) : _i2caddr(i2caddr) {}
     @returns True if chip found and initialized, False otherwise
 */
 /**************************************************************************/
-boolean Adafruit_VL6180X::begin(i2c_inst_t* bus) {
+bool Adafruit_VL6180X::begin(i2c_inst_t* bus) {
   // only needed to support setAddress()
   _i2c = bus;
 
@@ -200,7 +200,7 @@ uint8_t Adafruit_VL6180X::readRange(void) {
 */
 /**************************************************************************/
 
-boolean Adafruit_VL6180X::startRange(void) {
+bool Adafruit_VL6180X::startRange(void) {
   // wait for device to be ready for range measurement
   while (!(read8(VL6180X_REG_RESULT_RANGE_STATUS) & 0x01))
     ;
@@ -218,7 +218,7 @@ boolean Adafruit_VL6180X::startRange(void) {
 */
 /**************************************************************************/
 
-boolean Adafruit_VL6180X::isRangeComplete(void) {
+bool Adafruit_VL6180X::isRangeComplete(void) {
 
   // Poll until bit 2 is set
   if ((read8(VL6180X_REG_RESULT_INTERRUPT_STATUS_GPIO) & 0x04))
@@ -234,7 +234,7 @@ boolean Adafruit_VL6180X::isRangeComplete(void) {
 */
 /**************************************************************************/
 
-boolean Adafruit_VL6180X::waitRangeComplete(void) {
+bool Adafruit_VL6180X::waitRangeComplete(void) {
 
   // Poll until bit 2 is set
   while (!(read8(VL6180X_REG_RESULT_INTERRUPT_STATUS_GPIO) & 0x04))

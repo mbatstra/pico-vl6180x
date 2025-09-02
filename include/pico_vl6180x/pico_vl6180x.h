@@ -82,7 +82,7 @@ class Adafruit_VL6180X {
 public:
   Adafruit_VL6180X(uint8_t i2caddr = VL6180X_DEFAULT_I2C_ADDR);
   ~Adafruit_VL6180X();
-  boolean begin(i2c_inst_t* i2c);
+  bool begin(i2c_inst_t* i2c);
   void    setAddress(uint8_t newAddr);
   uint8_t getAddress(void);
 
@@ -90,9 +90,9 @@ public:
   float readLux(uint8_t gain);
   uint8_t readRangeStatus(void);
 
-  boolean startRange(void);
-  boolean isRangeComplete(void);
-  boolean waitRangeComplete(void);
+  bool startRange(void);
+  bool isRangeComplete(void);
+  bool waitRangeComplete(void);
   uint8_t readRangeResult(void);
 
   void startRangeContinuous(uint16_t period_ms = 50);
